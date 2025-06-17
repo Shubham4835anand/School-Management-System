@@ -58,7 +58,8 @@ const TeacherRegisterPage = () => {
       name,
       email,
       password,
-      subject, // <-- Add all required fields
+      subject,
+      role,
     };
 
     try {
@@ -73,26 +74,19 @@ const TeacherRegisterPage = () => {
       );
       console.log('Success', response.data);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error:', error.response?.data || error.message);
+      setMessage(error.response?.data?.error || 'Registration failed');
+      setShowPopup(true);
     }
   };
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
 
-    if (name === 'name') {
-      setName(value);
-      setNameError(false);
-    } else if (name === 'subject') {
-      setSubject(value);
-      setSubjectError(false);
-    } else if (name === 'email') {
-      setEmail(value);
-      setEmailError(false);
-    } else if (name === 'password') {
-      setPassword(value);
-      setPasswordError(false);
-    }
+    if (name === 'name') setName(value);
+    if (name === 'email') setEmail(value);
+    if (name === 'password') setPassword(value);
+    if (name === 'subject') setSubject(value);
   };
 
   useEffect(() => {

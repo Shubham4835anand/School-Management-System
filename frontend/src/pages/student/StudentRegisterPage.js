@@ -35,6 +35,7 @@ const StudentRegisterPage = () => {
   const [loader, setLoader] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [message, setMessage] = useState('');
+  const role = 'Student';
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -54,7 +55,7 @@ const StudentRegisterPage = () => {
       return;
     }
 
-    const data = { name, email, password, rollNum };
+    const data = { name, email, password, rollNum, role };
 
     try {
       const response = await axios.post(
