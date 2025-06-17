@@ -28,20 +28,19 @@ const StudentRegisterPage = () => {
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
-  const [rollNum, setRollNum] = useState('');
+  const [schoolName, setSchoolName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [toggle, setToggle] = useState(false);
   const [loader, setLoader] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [message, setMessage] = useState('');
-  const role = 'Student';
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
     if (name === 'name') setName(value);
-    else if (name === 'rollNum') setRollNum(value);
+    else if (name === 'schoolName') setSchoolName(value);
     else if (name === 'email') setEmail(value);
     else if (name === 'password') setPassword(value);
   };
@@ -49,13 +48,13 @@ const StudentRegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !email || !password || !rollNum) {
+    if (!name || !email || !password || !schoolName) {
       setMessage('All fields are required');
       setShowPopup(true);
       return;
     }
 
-    const data = { name, email, password, rollNum, role };
+    const data = { name, email, password, schoolName };
 
     try {
       const response = await axios.post(
@@ -117,10 +116,10 @@ const StudentRegisterPage = () => {
                 margin='normal'
                 required
                 fullWidth
-                id='rollNum'
-                label='Roll Number'
-                name='rollNum'
-                value={rollNum}
+                id='schoolName'
+                label='School Name'
+                name='schoolName'
+                value={schoolName}
                 onChange={handleInputChange}
               />
               <TextField

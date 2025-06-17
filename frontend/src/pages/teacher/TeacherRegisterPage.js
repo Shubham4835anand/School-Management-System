@@ -38,7 +38,7 @@ const TeacherRegisterPage = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [subject, setSubject] = useState('');
+  const [schoolName, setSchoolName] = useState('');
 
   const [loader, setLoader] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
@@ -47,8 +47,7 @@ const TeacherRegisterPage = () => {
   const [nameError, setNameError] = useState(false);
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
-  const [subjectError, setSubjectError] = useState(false);
-  const role = 'Teacher';
+  const [schoolNameError, setSchoolNameError] = useState(false);
 
   // Inside TeacherRegisterPage.js
   const handleSubmit = async (e) => {
@@ -58,8 +57,7 @@ const TeacherRegisterPage = () => {
       name,
       email,
       password,
-      subject,
-      role,
+      schoolName,
     };
 
     try {
@@ -86,7 +84,7 @@ const TeacherRegisterPage = () => {
     if (name === 'name') setName(value);
     if (name === 'email') setEmail(value);
     if (name === 'password') setPassword(value);
-    if (name === 'subject') setSubject(value);
+    if (name === 'schoolName') setSchoolName(value);
   };
 
   useEffect(() => {
@@ -145,11 +143,11 @@ const TeacherRegisterPage = () => {
                 margin='normal'
                 required
                 fullWidth
-                id='subject'
-                label='Subject'
-                name='subject'
-                error={subjectError}
-                helperText={subjectError && 'Subject is required'}
+                id='schoolName'
+                label='School Name'
+                name='schoolName'
+                error={schoolNameError}
+                helperText={schoolNameError && 'schoolName is required'}
                 onChange={handleInputChange}
               />
               <TextField
