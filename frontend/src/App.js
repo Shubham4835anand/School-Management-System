@@ -35,8 +35,8 @@ const App = () => {
           <Route path='/Teacherlogin' element={<LoginPage role='Teacher' />} />
 
           <Route path='/Adminregister' element={<AdminRegisterPage />} />
-          <Route path='/teacher/register' element={<TeacherRegisterPage />} />
-          <Route path='/student/register' element={<StudentRegisterPage />} />
+          <Route path='/Teacherregister' element={<TeacherRegisterPage />} />
+          <Route path='/Studentregister' element={<StudentRegisterPage />} />
 
           <Route path='*' element={<Navigate to='/' />} />
         </Routes>
