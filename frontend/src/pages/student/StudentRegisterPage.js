@@ -1,212 +1,142 @@
-import * as React from 'react';
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios'; // ✅ Make sure axios is imported
+import React, { useState } from 'react';
 import {
-  Grid,
+  Container,
+  TextField,
+  Button,
   Box,
   Typography,
-  Paper,
-  TextField,
-  CssBaseline,
-  IconButton,
-  InputAdornment,
-  Checkbox,
-  FormControlLabel,
-  CircularProgress,
+  Alert,
 } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { LightPurpleButton } from '../../components/buttonStyles';
-import styled from 'styled-components';
-import Popup from '../../components/Popup';
-import bgpic from '../../assets/designlogin.jpg';
+import axios from 'axios';
 
-const defaultTheme = createTheme();
+const StudentSignup = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    rollNum: '',
+    password: '',
+    sclassName: '',
+    school: '',
+  });
 
-const StudentRegisterPage = () => {
-  const navigate = useNavigate();
-
-  const [name, setName] = useState('');
-  const [schoolName, setSchoolName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [toggle, setToggle] = useState(false);
-  const [loader, setLoader] = useState(false);
-  const [showPopup, setShowPopup] = useState(false);
   const [message, setMessage] = useState('');
+  const [success, setSuccess] = useState(false);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-
-    if (name === 'name') setName(value);
-    else if (name === 'schoolName') setSchoolName(value);
-    else if (name === 'email') setEmail(value);
-    else if (name === 'password') setPassword(value);
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const { name, rollNum, password, sclassName, school } = formData;
 
-    if (!name || !email || !password || !schoolName) {
+    // Validation
+    if (!name || !rollNum || !password || !sclassName || !school) {
       setMessage('All fields are required');
-      setShowPopup(true);
+      setSuccess(false);
       return;
     }
 
-    const data = { name, email, password, schoolName };
-
     try {
-      const response = await axios.post(
+      const payload = {
+        name,
+        rollNum: parseInt(rollNum), // Ensure rollNum is a number
+        password,
+        sclassName, // assumed to be a MongoDB ObjectId string
+        school, // assumed to be a MongoDB ObjectId string
+      };
+
+      const res = await axios.post(
         'https://school-management-system-8atr.onrender.com/StudentReg',
-        data,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+        payload
       );
 
-      console.log('✅ Student registered:', response.data);
-      navigate('/Student/dashboard'); // or login page
-    } catch (error) {
-      console.error('❌ Error:', error);
-      setMessage(error.response?.data?.message || 'Registration failed');
-      setShowPopup(true);
+      setMessage(res.data.message || 'Student registered successfully');
+      setSuccess(true);
+
+      setFormData({
+        name: '',
+        rollNum: '',
+        password: '',
+        sclassName: '',
+        school: '',
+      });
+    } catch (err) {
+      console.error(err);
+      const errorMsg =
+        err.response?.data?.error || 'Something went wrong. Please try again.';
+      setMessage(errorMsg);
+      setSuccess(false);
     }
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
-      <Grid container component='main' sx={{ height: '100vh' }}>
-        <CssBaseline />
-        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
-          <Box
-            sx={{
-              my: 8,
-              mx: 4,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}
-          >
-            <Typography variant='h4' sx={{ mb: 2, color: '#2c2143' }}>
-              Student Register
-            </Typography>
-            <Typography variant='h7'>
-              Create your student account to join classes.
-            </Typography>
-            <Box
-              component='form'
-              noValidate
-              onSubmit={handleSubmit}
-              sx={{ mt: 2 }}
-            >
-              <TextField
-                margin='normal'
-                required
-                fullWidth
-                id='name'
-                label='Full Name'
-                name='name'
-                value={name}
-                onChange={handleInputChange}
-              />
-              <TextField
-                margin='normal'
-                required
-                fullWidth
-                id='schoolName'
-                label='School Name'
-                name='schoolName'
-                value={schoolName}
-                onChange={handleInputChange}
-              />
-              <TextField
-                margin='normal'
-                required
-                fullWidth
-                id='email'
-                label='Email Address'
-                name='email'
-                value={email}
-                onChange={handleInputChange}
-              />
-              <TextField
-                margin='normal'
-                required
-                fullWidth
-                name='password'
-                label='Password'
-                type={toggle ? 'text' : 'password'}
-                id='password'
-                value={password}
-                onChange={handleInputChange}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position='end'>
-                      <IconButton onClick={() => setToggle(!toggle)}>
-                        {toggle ? <Visibility /> : <VisibilityOff />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <FormControlLabel
-                control={<Checkbox value='remember' color='primary' />}
-                label='Remember me'
-              />
-              <LightPurpleButton
-                type='submit'
-                fullWidth
-                variant='contained'
-                sx={{ mt: 3, mb: 2 }}
-              >
-                {loader ? (
-                  <CircularProgress size={24} color='inherit' />
-                ) : (
-                  'Register'
-                )}
-              </LightPurpleButton>
-              <Grid container>
-                <Grid item>
-                  Already have an account?
-                  <StyledLink to='/Studentlogin'> Log in</StyledLink>
-                </Grid>
-              </Grid>
-            </Box>
-          </Box>
-        </Grid>
-        <Grid
-          item
-          xs={false}
-          sm={4}
-          md={7}
-          sx={{
-            backgroundImage: `url(${bgpic})`,
-            backgroundRepeat: 'no-repeat',
-            backgroundColor: (t) =>
-              t.palette.mode === 'light'
-                ? t.palette.grey[50]
-                : t.palette.grey[900],
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-      </Grid>
-      <Popup
-        message={message}
-        setShowPopup={setShowPopup}
-        showPopup={showPopup}
-      />
-    </ThemeProvider>
+    <Container maxWidth='sm'>
+      <Box sx={{ mt: 4 }}>
+        <Typography variant='h4' gutterBottom>
+          Student Signup
+        </Typography>
+
+        {message && (
+          <Alert severity={success ? 'success' : 'error'} sx={{ my: 2 }}>
+            {message}
+          </Alert>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <TextField
+            fullWidth
+            label='Name'
+            name='name'
+            value={formData.name}
+            onChange={handleChange}
+            margin='normal'
+          />
+          <TextField
+            fullWidth
+            label='Roll Number'
+            name='rollNum'
+            type='number'
+            value={formData.rollNum}
+            onChange={handleChange}
+            margin='normal'
+          />
+          <TextField
+            fullWidth
+            label='Password'
+            name='password'
+            type='password'
+            value={formData.password}
+            onChange={handleChange}
+            margin='normal'
+          />
+          <TextField
+            fullWidth
+            label='Class ID (sclassName)'
+            name='sclassName'
+            value={formData.sclassName}
+            onChange={handleChange}
+            margin='normal'
+            helperText='Enter valid MongoDB ObjectId for Class'
+          />
+          <TextField
+            fullWidth
+            label='School ID'
+            name='school'
+            value={formData.school}
+            onChange={handleChange}
+            margin='normal'
+            helperText='Enter valid MongoDB ObjectId for School'
+          />
+          <Button type='submit' variant='contained' fullWidth sx={{ mt: 3 }}>
+            Register
+          </Button>
+        </form>
+      </Box>
+    </Container>
   );
 };
 
-export default StudentRegisterPage;
-
-const StyledLink = styled(Link)`
-  margin-left: 6px;
-  text-decoration: none;
-  color: #7f56da;
-`;
+export default StudentSignup;
