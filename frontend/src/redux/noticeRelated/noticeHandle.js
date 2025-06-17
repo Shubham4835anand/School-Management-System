@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getRequest, getSuccess, getFailed, getError } from './noticeSlice';
 
-const REACT_APP_BASE_URL = import.meta.env.REACT_APP_BASE_URL;
+const REACT_APP_BASE_URL = process.env.REACT_APP_BASE_URL;
 export const getAllNotices = (id, address) => async (dispatch) => {
   dispatch(getRequest());
 

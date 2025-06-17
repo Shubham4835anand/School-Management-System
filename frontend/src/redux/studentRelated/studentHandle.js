@@ -7,7 +7,7 @@ import {
   stuffDone,
 } from './studentSlice';
 
-const REACT_APP_BASE_URL = import.meta.env.REACT_APP_BASE_URL;
+const REACT_APP_BASE_URL = process.env.REACT_APP_BASE_URL;
 export const getAllStudents = (id) => async (dispatch) => {
   dispatch(getRequest());
 
