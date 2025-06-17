@@ -22,6 +22,7 @@ import { LightPurpleButton } from '../../components/buttonStyles';
 import { registerUser } from '../../redux/userRelated/userHandle';
 import styled from 'styled-components';
 import Popup from '../../components/Popup';
+import axios from 'axios';
 
 const defaultTheme = createTheme();
 
@@ -34,6 +35,11 @@ const TeacherRegisterPage = () => {
   );
 
   const [toggle, setToggle] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [subject, setSubject] = useState('');
+
   const [loader, setLoader] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [message, setMessage] = useState('');
@@ -44,33 +50,49 @@ const TeacherRegisterPage = () => {
   const [subjectError, setSubjectError] = useState(false);
   const role = 'Teacher';
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  // Inside TeacherRegisterPage.js
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    const name = event.target.name.value;
-    const subject = event.target.subject.value;
-    const email = event.target.email.value;
-    const password = event.target.password.value;
+    const data = {
+      name,
+      email,
+      password,
+      subject, // <-- Add all required fields
+    };
 
-    if (!name || !subject || !email || !password) {
-      if (!name) setNameError(true);
-      if (!subject) setSubjectError(true);
-      if (!email) setEmailError(true);
-      if (!password) setPasswordError(true);
-      return;
+    try {
+      const response = await axios.post(
+        'https://school-management-system-8atr.onrender.com/TeacherReg',
+        data,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      console.log('Success', response.data);
+    } catch (error) {
+      console.error('Error:', error);
     }
-
-    const fields = { name, email, password, role, subject };
-    setLoader(true);
-    dispatch(registerUser(fields, role));
   };
 
   const handleInputChange = (event) => {
-    const { name } = event.target;
-    if (name === 'name') setNameError(false);
-    if (name === 'subject') setSubjectError(false);
-    if (name === 'email') setEmailError(false);
-    if (name === 'password') setPasswordError(false);
+    const { name, value } = event.target;
+
+    if (name === 'name') {
+      setName(value);
+      setNameError(false);
+    } else if (name === 'subject') {
+      setSubject(value);
+      setSubjectError(false);
+    } else if (name === 'email') {
+      setEmail(value);
+      setEmailError(false);
+    } else if (name === 'password') {
+      setPassword(value);
+      setPasswordError(false);
+    }
   };
 
   useEffect(() => {

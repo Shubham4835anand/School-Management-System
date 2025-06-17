@@ -1,92 +1,80 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios'; // ✅ Make sure axios is imported
 import {
   Grid,
   Box,
   Typography,
   Paper,
-  Checkbox,
-  FormControlLabel,
   TextField,
   CssBaseline,
   IconButton,
   InputAdornment,
+  Checkbox,
+  FormControlLabel,
   CircularProgress,
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import bgpic from '../../assets/designlogin.jpg';
 import { LightPurpleButton } from '../../components/buttonStyles';
-import { registerUser } from '../../redux/userRelated/userHandle';
 import styled from 'styled-components';
 import Popup from '../../components/Popup';
+import bgpic from '../../assets/designlogin.jpg';
 
 const defaultTheme = createTheme();
 
 const StudentRegisterPage = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { status, currentUser, response, error, currentRole } = useSelector(
-    (state) => state.user
-  );
-
+  const [name, setName] = useState('');
+  const [rollNum, setRollNum] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [toggle, setToggle] = useState(false);
   const [loader, setLoader] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [message, setMessage] = useState('');
 
-  const [nameError, setNameError] = useState(false);
-  const [rollError, setRollError] = useState(false);
-  const [emailError, setEmailError] = useState(false);
-  const [passwordError, setPasswordError] = useState(false);
-  const role = 'Student';
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+    if (name === 'name') setName(value);
+    else if (name === 'rollNum') setRollNum(value);
+    else if (name === 'email') setEmail(value);
+    else if (name === 'password') setPassword(value);
+  };
 
-    const name = event.target.name.value;
-    const rollNumber = event.target.rollNumber.value;
-    const email = event.target.email.value;
-    const password = event.target.password.value;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    if (!name || !rollNumber || !email || !password) {
-      if (!name) setNameError(true);
-      if (!rollNumber) setRollError(true);
-      if (!email) setEmailError(true);
-      if (!password) setPasswordError(true);
+    if (!name || !email || !password || !rollNum) {
+      setMessage('All fields are required');
+      setShowPopup(true);
       return;
     }
 
-    const fields = { name, email, password, role, rollNumber };
-    setLoader(true);
-    dispatch(registerUser(fields, role));
-  };
+    const data = { name, email, password, rollNum };
 
-  const handleInputChange = (event) => {
-    const { name } = event.target;
-    if (name === 'name') setNameError(false);
-    if (name === 'rollNumber') setRollError(false);
-    if (name === 'email') setEmailError(false);
-    if (name === 'password') setPasswordError(false);
-  };
+    try {
+      const response = await axios.post(
+        'https://school-management-system-8atr.onrender.com/StudentReg',
+        data,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-  useEffect(() => {
-    if (
-      status === 'success' ||
-      (currentUser !== null && currentRole === 'Student')
-    ) {
-      navigate('/Student/dashboard');
-    } else if (status === 'failed') {
-      setMessage(response);
+      console.log('✅ Student registered:', response.data);
+      navigate('/Student/dashboard'); // or login page
+    } catch (error) {
+      console.error('❌ Error:', error);
+      setMessage(error.response?.data?.message || 'Registration failed');
       setShowPopup(true);
-      setLoader(false);
-    } else if (status === 'error') {
-      console.log(error);
     }
-  }, [status, currentUser, currentRole, navigate, error, response]);
+  };
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -106,7 +94,7 @@ const StudentRegisterPage = () => {
               Student Register
             </Typography>
             <Typography variant='h7'>
-              Create your account to join your school and access learning tools.
+              Create your student account to join classes.
             </Typography>
             <Box
               component='form'
@@ -121,19 +109,17 @@ const StudentRegisterPage = () => {
                 id='name'
                 label='Full Name'
                 name='name'
-                error={nameError}
-                helperText={nameError && 'Name is required'}
+                value={name}
                 onChange={handleInputChange}
               />
               <TextField
                 margin='normal'
                 required
                 fullWidth
-                id='rollNumber'
+                id='rollNum'
                 label='Roll Number'
-                name='rollNumber'
-                error={rollError}
-                helperText={rollError && 'Roll Number is required'}
+                name='rollNum'
+                value={rollNum}
                 onChange={handleInputChange}
               />
               <TextField
@@ -143,8 +129,7 @@ const StudentRegisterPage = () => {
                 id='email'
                 label='Email Address'
                 name='email'
-                error={emailError}
-                helperText={emailError && 'Email is required'}
+                value={email}
                 onChange={handleInputChange}
               />
               <TextField
@@ -155,8 +140,7 @@ const StudentRegisterPage = () => {
                 label='Password'
                 type={toggle ? 'text' : 'password'}
                 id='password'
-                error={passwordError}
-                helperText={passwordError && 'Password is required'}
+                value={password}
                 onChange={handleInputChange}
                 InputProps={{
                   endAdornment: (
