@@ -140,7 +140,13 @@ router.post('/TeacherReg', async (req, res) => {
     const { name, email, password, school, teachSubject, teachSclass } =
       req.body;
 
-    // Validate that required ObjectIds are valid
+    if (!name || !email || !password || !school || !teachSclass) {
+      return res
+        .status(400)
+        .json({ error: 'All required fields must be filled' });
+    }
+
+    // Validate ObjectId format
     if (
       !mongoose.Types.ObjectId.isValid(school) ||
       !mongoose.Types.ObjectId.isValid(teachSclass) ||
@@ -149,15 +155,30 @@ router.post('/TeacherReg', async (req, res) => {
       return res.status(400).json({ error: 'Invalid ID(s) provided' });
     }
 
+    // Validate existence of referenced documents
+    const schoolExists = await School.findById(school);
+    if (!schoolExists) {
+      return res.status(404).json({ error: 'School not found' });
+    }
+
+    const classExists = await Sclass.findById(teachSclass);
+    if (!classExists) {
+      return res.status(404).json({ error: 'Class not found' });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create and save new teacher
     const newTeacher = new Teacher({
       name,
       email,
-      password,
+      password: hashedPassword,
       school: new mongoose.Types.ObjectId(school),
-      teachSubject: teachSubject
-        ? new mongoose.Types.ObjectId(teachSubject)
-        : undefined,
       teachSclass: new mongoose.Types.ObjectId(teachSclass),
+      ...(teachSubject && {
+        teachSubject: new mongoose.Types.ObjectId(teachSubject),
+      }),
     });
 
     await newTeacher.save();
@@ -165,7 +186,9 @@ router.post('/TeacherReg', async (req, res) => {
     res.status(201).json({ message: 'Teacher registered successfully' });
   } catch (err) {
     console.error('TeacherReg error:', err);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res
+      .status(500)
+      .json({ error: 'Internal Server Error', details: err.message });
   }
 });
 

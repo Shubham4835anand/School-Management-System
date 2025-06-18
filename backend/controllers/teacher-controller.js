@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const mongoose = require('mongoose');
 const Teacher = require('../models/teacherSchema.js');
 const Subject = require('../models/subjectSchema.js');
 
@@ -23,8 +24,8 @@ const teacherRegister = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      school,
-      teachSclass,
+      school: new mongoose.Types.ObjectId(school),
+      teachSclass: new mongoose.Types.ObjectId(teachSclass),
     });
 
     await newTeacher.save();
@@ -38,10 +39,11 @@ const teacherRegister = async (req, res) => {
 const teacherLogIn = async (req, res) => {
   try {
     let teacher = await Teacher.findOne({ email: req.body.email });
-    if (!teacher) return res.send({ message: 'Teacher not found' });
+    if (!teacher) return res.status(404).json({ message: 'Teacher not found' });
 
     const validated = await bcrypt.compare(req.body.password, teacher.password);
-    if (!validated) return res.send({ message: 'Invalid password' });
+    if (!validated)
+      return res.status(401).json({ message: 'Invalid password' });
 
     teacher = await teacher
       .populate('teachSubject', 'subName sessions')
@@ -51,7 +53,8 @@ const teacherLogIn = async (req, res) => {
     teacher.password = undefined;
     res.send(teacher);
   } catch (err) {
-    res.status(500).json(err);
+    console.error('❌ Error in teacherLogIn:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
@@ -59,9 +62,11 @@ const getTeachers = async (req, res) => {
   try {
     const teachers = await Teacher.find({ school: req.params.id })
       .populate('teachSubject', 'subName')
-      .populate('teachSclass', 'sclassName');
+      .populate('teachSclass', 'sclassName')
+      .populate('school', 'schoolName');
 
-    if (!teachers.length) return res.send({ message: 'No teachers found' });
+    if (!teachers.length)
+      return res.status(404).json({ message: 'No teachers found' });
 
     const cleanTeachers = teachers.map((t) => ({
       ...t._doc,
@@ -69,7 +74,7 @@ const getTeachers = async (req, res) => {
     }));
     res.send(cleanTeachers);
   } catch (err) {
-    res.status(500).json(err);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
@@ -80,18 +85,22 @@ const getTeacherDetail = async (req, res) => {
       .populate('school', 'schoolName')
       .populate('teachSclass', 'sclassName');
 
-    if (!teacher) return res.send({ message: 'No teacher found' });
+    if (!teacher) return res.status(404).json({ message: 'No teacher found' });
 
     teacher.password = undefined;
     res.send(teacher);
   } catch (err) {
-    res.status(500).json(err);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
 const updateTeacherSubject = async (req, res) => {
   const { teacherId, teachSubject } = req.body;
   try {
+    const subjectExists = await Subject.findById(teachSubject);
+    if (!subjectExists)
+      return res.status(400).json({ error: 'Invalid subject ID' });
+
     const updatedTeacher = await Teacher.findByIdAndUpdate(
       teacherId,
       { teachSubject },
@@ -104,22 +113,23 @@ const updateTeacherSubject = async (req, res) => {
 
     res.send(updatedTeacher);
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
 const deleteTeacher = async (req, res) => {
   try {
     const deletedTeacher = await Teacher.findByIdAndDelete(req.params.id);
-
-    await Subject.updateOne(
-      { teacher: deletedTeacher._id },
-      { $unset: { teacher: '' } }
-    );
+    if (deletedTeacher) {
+      await Subject.updateOne(
+        { teacher: deletedTeacher._id },
+        { $unset: { teacher: '' } }
+      );
+    }
 
     res.send(deletedTeacher);
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
@@ -128,7 +138,7 @@ const deleteTeachers = async (req, res) => {
     const deleted = await Teacher.deleteMany({ school: req.params.id });
     res.send(deleted);
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
@@ -137,7 +147,7 @@ const deleteTeachersByClass = async (req, res) => {
     const deleted = await Teacher.deleteMany({ teachSclass: req.params.id });
     res.send(deleted);
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
@@ -146,12 +156,12 @@ const teacherAttendance = async (req, res) => {
 
   try {
     const teacher = await Teacher.findById(req.params.id);
-    if (!teacher) return res.send({ message: 'Teacher not found' });
+    if (!teacher) return res.status(404).json({ message: 'Teacher not found' });
 
-    const formattedDate = new Date(date).toDateString();
+    const formattedDate = new Date(date).toISOString().split('T')[0];
 
     const existing = teacher.attendance.find(
-      (a) => new Date(a.date).toDateString() === formattedDate
+      (a) => new Date(a.date).toISOString().split('T')[0] === formattedDate
     );
 
     if (existing) {
@@ -164,7 +174,7 @@ const teacherAttendance = async (req, res) => {
     const result = await teacher.save();
     return res.send(result);
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
