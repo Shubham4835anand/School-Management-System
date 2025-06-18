@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const Teacher = require('../models/teacherSchema.js');
 const Subject = require('../models/subjectSchema.js');
+const School = require('../models/adminSchema.js');
 
 const teacherRegister = async (req, res) => {
   try {

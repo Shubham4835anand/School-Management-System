@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const mongoose = require('mongoose');
+const School = require('../models/adminSchema.js');
 
 // const { adminRegister, adminLogIn, deleteAdmin, getAdminDetail, updateAdmin } = require('../controllers/admin-controller.js');
 
