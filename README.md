@@ -26,5 +26,3 @@ A MERN (MongoDB, Express, React, Node.js) based web application to manage school
 
 ---
 
-## 📂 Folder Structure
-
