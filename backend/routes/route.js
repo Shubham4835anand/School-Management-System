@@ -1,7 +1,9 @@
 const router = require('express').Router();
 const mongoose = require('mongoose');
-const School = require('../models/adminSchema.js');
-
+const Teacher = require('../models/teacherSchema.js'); // Path to your teacher schema
+const School = require('../models/adminSchema.js'); // Admin schema = School
+const Sclass = require('../models/sclassSchema.js'); // Class schema
+const Subject = require('../models/subjectSchema.js');
 // const { adminRegister, adminLogIn, deleteAdmin, getAdminDetail, updateAdmin } = require('../controllers/admin-controller.js');
 
 const {
