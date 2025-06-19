@@ -1,21 +1,13 @@
 const router = require('express').Router();
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 
-const Teacher = require('../models/teacherSchema.js');
-const School = require('../models/adminSchema.js');
-const Sclass = require('../models/sclassSchema.js');
-const Subject = require('../models/subjectSchema.js');
-const Student = require('../models/studentSchema.js');
+// const { adminRegister, adminLogIn, deleteAdmin, getAdminDetail, updateAdmin } = require('../controllers/admin-controller.js');
 
-// Admin controllers
 const {
   adminRegister,
   adminLogIn,
   getAdminDetail,
 } = require('../controllers/admin-controller.js');
 
-// Class controllers
 const {
   sclassCreate,
   sclassList,
@@ -24,14 +16,10 @@ const {
   getSclassDetail,
   getSclassStudents,
 } = require('../controllers/class-controller.js');
-
-// Complain controllers
 const {
   complainCreate,
   complainList,
 } = require('../controllers/complain-controller.js');
-
-// Notice controllers
 const {
   noticeCreate,
   noticeList,
@@ -39,8 +27,6 @@ const {
   deleteNotice,
   updateNotice,
 } = require('../controllers/notice-controller.js');
-
-// Student controllers
 const {
   studentRegister,
   studentLogIn,
@@ -57,8 +43,6 @@ const {
   removeStudentAttendanceBySubject,
   removeStudentAttendance,
 } = require('../controllers/student_controller.js');
-
-// Subject controllers
 const {
   subjectCreate,
   classSubjects,
@@ -69,8 +53,6 @@ const {
   allSubjects,
   deleteSubjects,
 } = require('../controllers/subject-controller.js');
-
-// Teacher controllers
 const {
   teacherRegister,
   teacherLogIn,
@@ -83,156 +65,96 @@ const {
   teacherAttendance,
 } = require('../controllers/teacher-controller.js');
 
-// Admin Routes
+// Admin
 router.post('/AdminReg', adminRegister);
 router.post('/AdminLogin', adminLogIn);
+
 router.get('/Admin/:id', getAdminDetail);
+// router.delete("/Admin/:id", deleteAdmin)
 
-// Student Routes
-router.post('/StudentReg', async (req, res) => {
-  try {
-    const { name, rollNum, password, sclassName, school } = req.body;
+// router.put("/Admin/:id", updateAdmin)
 
-    if (!name || !rollNum || !password || !sclassName || !school) {
-      return res.status(400).json({ error: 'All fields are required' });
-    }
+// Student
 
-    const classId = mongoose.Types.ObjectId(sclassName);
-    const schoolId = mongoose.Types.ObjectId(school);
-
-    const newStudent = new Student({
-      name,
-      rollNum,
-      password,
-      sclassName: classId,
-      school: schoolId,
-    });
-
-    await newStudent.save();
-    res.status(200).json({ message: 'Student registered successfully' });
-  } catch (err) {
-    console.error('Error during registration:', err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
+router.post('/StudentReg', studentRegister);
 router.post('/StudentLogin', studentLogIn);
+
 router.get('/Students/:id', getStudents);
 router.get('/Student/:id', getStudentDetail);
+
 router.delete('/Students/:id', deleteStudents);
 router.delete('/StudentsClass/:id', deleteStudentsByClass);
 router.delete('/Student/:id', deleteStudent);
+
 router.put('/Student/:id', updateStudent);
+
 router.put('/UpdateExamResult/:id', updateExamResult);
+
 router.put('/StudentAttendance/:id', studentAttendance);
+
 router.put(
   '/RemoveAllStudentsSubAtten/:id',
   clearAllStudentsAttendanceBySubject
 );
 router.put('/RemoveAllStudentsAtten/:id', clearAllStudentsAttendance);
+
 router.put('/RemoveStudentSubAtten/:id', removeStudentAttendanceBySubject);
 router.put('/RemoveStudentAtten/:id', removeStudentAttendance);
 
-// Teacher Routes
-router.post('/TeacherReg', async (req, res) => {
-  try {
-    const { name, email, password, school, teachSubject, teachSclass } =
-      req.body;
+// Teacher
 
-    if (!name || !email || !password || !school || !teachSclass) {
-      return res
-        .status(400)
-        .json({ error: 'All required fields must be filled' });
-    }
-
-    if (
-      !mongoose.Types.ObjectId.isValid(school) ||
-      !mongoose.Types.ObjectId.isValid(teachSclass) ||
-      (teachSubject && !mongoose.Types.ObjectId.isValid(teachSubject))
-    ) {
-      return res.status(400).json({ error: 'Invalid ID(s) provided' });
-    }
-
-    const schoolExists = await School.findById(school);
-    if (!schoolExists)
-      return res.status(404).json({ error: 'School not found' });
-
-    const classExists = await Sclass.findById(teachSclass);
-    if (!classExists) return res.status(404).json({ error: 'Class not found' });
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newTeacher = new Teacher({
-      name,
-      email,
-      password: hashedPassword,
-      school: new mongoose.Types.ObjectId(school),
-      teachSclass: new mongoose.Types.ObjectId(teachSclass),
-      ...(teachSubject && {
-        teachSubject: new mongoose.Types.ObjectId(teachSubject),
-      }),
-    });
-
-    await newTeacher.save();
-    res.status(201).json({ message: 'Teacher registered successfully' });
-  } catch (err) {
-    console.error('TeacherReg error:', err);
-    res
-      .status(500)
-      .json({ error: 'Internal Server Error', details: err.message });
-  }
-});
-
-router.post('/Teacherlogin', async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const teacher = await Teacher.findOne({ email });
-    if (!teacher) return res.status(404).json({ error: 'Teacher not found' });
-
-    const isMatch = await bcrypt.compare(password, teacher.password);
-    if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
-
-    res.status(200).json({ message: 'Login successful', teacher });
-  } catch (err) {
-    console.error('Login error:', err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+router.post('/TeacherReg', teacherRegister);
+router.post('/TeacherLogin', teacherLogIn);
 
 router.get('/Teachers/:id', getTeachers);
 router.get('/Teacher/:id', getTeacherDetail);
+
 router.delete('/Teachers/:id', deleteTeachers);
 router.delete('/TeachersClass/:id', deleteTeachersByClass);
 router.delete('/Teacher/:id', deleteTeacher);
+
 router.put('/TeacherSubject', updateTeacherSubject);
+
 router.post('/TeacherAttendance/:id', teacherAttendance);
 
-// Notice Routes
+// Notice
+
 router.post('/NoticeCreate', noticeCreate);
+
 router.get('/NoticeList/:id', noticeList);
+
 router.delete('/Notices/:id', deleteNotices);
 router.delete('/Notice/:id', deleteNotice);
+
 router.put('/Notice/:id', updateNotice);
 
-// Complain Routes
+// Complain
+
 router.post('/ComplainCreate', complainCreate);
+
 router.get('/ComplainList/:id', complainList);
 
-// Sclass Routes
+// Sclass
+
 router.post('/SclassCreate', sclassCreate);
+
 router.get('/SclassList/:id', sclassList);
 router.get('/Sclass/:id', getSclassDetail);
+
 router.get('/Sclass/Students/:id', getSclassStudents);
+
 router.delete('/Sclasses/:id', deleteSclasses);
 router.delete('/Sclass/:id', deleteSclass);
 
-// Subject Routes
+// Subject
+
 router.post('/SubjectCreate', subjectCreate);
+
 router.get('/AllSubjects/:id', allSubjects);
 router.get('/ClassSubjects/:id', classSubjects);
 router.get('/FreeSubjectList/:id', freeSubjectList);
 router.get('/Subject/:id', getSubjectDetail);
+
 router.delete('/Subject/:id', deleteSubject);
 router.delete('/Subjects/:id', deleteSubjects);
 router.delete('/SubjectsClass/:id', deleteSubjectsByClass);
