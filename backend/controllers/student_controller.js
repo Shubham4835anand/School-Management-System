@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const Student = require('../models/studentSchema.js');
 const Subject = require('../models/subjectSchema.js');
 
@@ -10,13 +11,16 @@ const studentRegister = async (req, res) => {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const newStudent = new Student({
       name,
       rollNum,
-      password,
+      password: hashedPassword,
       sclassName,
       school,
     });
+
     await newStudent.save();
 
     return res.status(201).json({ message: 'Student registered successfully' });
@@ -32,26 +36,38 @@ const studentLogIn = async (req, res) => {
       rollNum: req.body.rollNum,
       name: req.body.name,
     });
-    if (student) {
-      const validated = await bcrypt.compare(
-        req.body.password,
-        student.password
-      );
-      if (validated) {
-        student = await student.populate('school', 'schoolName');
-        student = await student.populate('sclassName', 'sclassName');
-        student.password = undefined;
-        student.examResult = undefined;
-        student.attendance = undefined;
-        res.send(student);
-      } else {
-        res.send({ message: 'Invalid password' });
-      }
-    } else {
-      res.send({ message: 'Student not found' });
+
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
     }
+
+    const validated = await bcrypt.compare(req.body.password, student.password);
+    if (!validated) {
+      return res.status(401).json({ message: 'Invalid password' });
+    }
+
+    student = await student
+      .populate('school', 'schoolName')
+      .populate('sclassName', 'sclassName');
+
+    student.password = undefined;
+    student.examResult = undefined;
+    student.attendance = undefined;
+
+    const token = jwt.sign(
+      { id: student._id, role: 'student' },
+      process.env.JWT_SECRET || 'defaultStudentSecret',
+      { expiresIn: '1d' }
+    );
+
+    return res.status(200).json({
+      message: 'Login successful',
+      student,
+      token,
+    });
   } catch (err) {
-    res.status(500).json(err);
+    console.error('❌ Error in studentLogIn:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
@@ -61,15 +77,17 @@ const getStudents = async (req, res) => {
       'sclassName',
       'sclassName'
     );
-    if (students.length > 0) {
-      let modifiedStudents = students.map((student) => ({
-        ...student._doc,
-        password: undefined,
-      }));
-      res.send(modifiedStudents);
-    } else {
-      res.send({ message: 'No students found' });
+
+    if (!students.length) {
+      return res.status(404).json({ message: 'No students found' });
     }
+
+    const clean = students.map((s) => ({
+      ...s._doc,
+      password: undefined,
+    }));
+
+    res.send(clean);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -83,12 +101,12 @@ const getStudentDetail = async (req, res) => {
       .populate('examResult.subName', 'subName')
       .populate('attendance.subName', 'subName sessions');
 
-    if (student) {
-      student.password = undefined;
-      res.send(student);
-    } else {
-      res.send({ message: 'No student found' });
+    if (!student) {
+      return res.status(404).json({ message: 'No student found' });
     }
+
+    student.password = undefined;
+    res.send(student);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -106,11 +124,10 @@ const deleteStudent = async (req, res) => {
 const deleteStudents = async (req, res) => {
   try {
     const result = await Student.deleteMany({ school: req.params.id });
-    if (result.deletedCount === 0) {
-      res.send({ message: 'No students found to delete' });
-    } else {
-      res.send(result);
+    if (!result.deletedCount) {
+      return res.send({ message: 'No students found to delete' });
     }
+    res.send(result);
   } catch (error) {
     res.status(500).json(error);
   }
@@ -119,11 +136,10 @@ const deleteStudents = async (req, res) => {
 const deleteStudentsByClass = async (req, res) => {
   try {
     const result = await Student.deleteMany({ sclassName: req.params.id });
-    if (result.deletedCount === 0) {
-      res.send({ message: 'No students found to delete' });
-    } else {
-      res.send(result);
+    if (!result.deletedCount) {
+      return res.send({ message: 'No students found to delete' });
     }
+    res.send(result);
   } catch (error) {
     res.status(500).json(error);
   }

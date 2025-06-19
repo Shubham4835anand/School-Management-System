@@ -1,5 +1,7 @@
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
+
 const Teacher = require('../models/teacherSchema.js');
 const Subject = require('../models/subjectSchema.js');
 const School = require('../models/adminSchema.js');
@@ -52,7 +54,18 @@ const teacherLogIn = async (req, res) => {
       .populate('teachSclass', 'sclassName');
 
     teacher.password = undefined;
-    res.send(teacher);
+
+    const token = jwt.sign(
+      { id: teacher._id, role: 'teacher' },
+      process.env.JWT_SECRET || 'defaultSecret',
+      { expiresIn: '1d' }
+    );
+
+    res.status(200).json({
+      message: 'Login successful',
+      teacher,
+      token,
+    });
   } catch (err) {
     console.error('❌ Error in teacherLogIn:', err);
     res.status(500).json({ error: 'Internal Server Error' });
