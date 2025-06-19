@@ -29,11 +29,14 @@ export const loginUser = (fields, role) => async (dispatch) => {
     const { token, teacher, student, admin, message } = result.data;
     const user = teacher || student || admin;
 
-    if (result.data.role && user && token) {
+    if (user && token) {
+      const userWithRole = { ...user, role }; // Attach role here
+
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('user', JSON.stringify(userWithRole));
       localStorage.setItem('role', role);
-      dispatch(authSuccess(result.data));
+
+      dispatch(authSuccess(userWithRole)); // Send user + role
     } else {
       dispatch(authFailed(message || 'Invalid login response'));
     }
