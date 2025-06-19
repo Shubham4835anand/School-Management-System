@@ -41,17 +41,17 @@ const teacherRegister = async (req, res) => {
 
 const teacherLogIn = async (req, res) => {
   try {
-    let teacher = await Teacher.findOne({ email: req.body.email });
-    if (!teacher) return res.status(404).json({ message: 'Teacher not found' });
-
-    const validated = await bcrypt.compare(req.body.password, teacher.password);
-    if (!validated)
-      return res.status(401).json({ message: 'Invalid password' });
-
-    teacher = await teacher
+    const teacher = await Teacher.findOne({ email: req.body.email })
       .populate('teachSubject', 'subName sessions')
       .populate('school', 'schoolName')
       .populate('teachSclass', 'sclassName');
+
+    if (!teacher) return res.status(404).json({ message: 'Teacher not found' });
+
+    const validated = await bcrypt.compare(req.body.password, teacher.password);
+
+    if (!validated)
+      return res.status(401).json({ message: 'Invalid password' });
 
     teacher.password = undefined;
 

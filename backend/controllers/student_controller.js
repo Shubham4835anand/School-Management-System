@@ -32,23 +32,19 @@ const studentRegister = async (req, res) => {
 
 const studentLogIn = async (req, res) => {
   try {
-    let student = await Student.findOne({
+    const student = await Student.findOne({
       rollNum: req.body.rollNum,
       name: req.body.name,
-    });
-
-    if (!student) {
-      return res.status(404).json({ message: 'Student not found' });
-    }
-
-    const validated = await bcrypt.compare(req.body.password, student.password);
-    if (!validated) {
-      return res.status(401).json({ message: 'Invalid password' });
-    }
-
-    student = await student
+    })
       .populate('school', 'schoolName')
       .populate('sclassName', 'sclassName');
+
+    if (!student) return res.status(404).json({ message: 'Student not found' });
+
+    const validated = await bcrypt.compare(req.body.password, student.password);
+
+    if (!validated)
+      return res.status(401).json({ message: 'Invalid password' });
 
     student.password = undefined;
     student.examResult = undefined;
@@ -56,11 +52,11 @@ const studentLogIn = async (req, res) => {
 
     const token = jwt.sign(
       { id: student._id, role: 'student' },
-      process.env.JWT_SECRET || 'defaultStudentSecret',
+      process.env.JWT_SECRET || 'defaultSecret',
       { expiresIn: '1d' }
     );
 
-    return res.status(200).json({
+    res.status(200).json({
       message: 'Login successful',
       student,
       token,
