@@ -31,31 +31,24 @@ const StudentLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { name, rollNum, password } = formData;
-    if (!name || !rollNum || !password) {
-      setMessage('All fields are required');
-      setSuccess(false);
-      return;
-    }
-
     try {
       const response = await axios.post(
         'https://school-management-system-8atr.onrender.com/StudentLogin',
         {
-          name,
-          rollNum: parseInt(rollNum),
-          password,
+          name: formData.name,
+          rollNum: formData.rollNum,
+          password: formData.password,
         }
       );
 
-      const { token, student } = response.data;
+      const { token, student, message } = response.data;
 
-      if (token) {
+      if (token && student) {
         localStorage.setItem('studentToken', token);
         localStorage.setItem('studentData', JSON.stringify(student));
         setSuccess(true);
-        setMessage('Login successful!');
-        navigate('/student-dashboard'); // 🔁 Your actual dashboard route
+        setMessage(message || 'Login successful!');
+        navigate('/student-dashboard');
       } else {
         setMessage('Login failed');
         setSuccess(false);

@@ -11,8 +11,8 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import StudentDashboard from './pages/student/StudentDashboard';
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
 import LoginPage from './pages/LoginPage';
-import Teacherlogin from './pages/teacher/TeacherLogin';
-import Studentlogin from './pages/student/StudentLogin';
+import TeacherLogin from './pages/teacher/TeacherLogin';
+import StudentLogin from './pages/student/StudentLogin';
 import AdminRegisterPage from './pages/admin/AdminRegisterPage';
 import ChooseUser from './pages/ChooseUser';
 import TeacherRegisterPage from './pages/teacher/TeacherRegisterPage';
@@ -33,8 +33,8 @@ const App = () => {
           />
 
           <Route path='/Adminlogin' element={<LoginPage role='Admin' />} />
-          <Route path='/Studentlogin' element={<Studentlogin />} />
-          <Route path='/Teacherlogin' element={<Teacherlogin />} />
+          <Route path='/StudentLogin' element={<StudentLogin />} />
+          <Route path='/TeacherLogin' element={<TeacherLogin />} />
 
           <Route path='/Adminregister' element={<AdminRegisterPage />} />
           <Route path='/Teacherregister' element={<TeacherRegisterPage />} />

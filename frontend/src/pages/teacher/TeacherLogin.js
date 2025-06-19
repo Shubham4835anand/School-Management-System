@@ -30,30 +30,20 @@ const TeacherLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { email, password } = formData;
-    if (!email || !password) {
-      setMessage('All fields are required');
-      setSuccess(false);
-      return;
-    }
-
     try {
       const response = await axios.post(
         'https://school-management-system-8atr.onrender.com/TeacherLogin',
-        {
-          email,
-          password,
-        }
+        { email: formData.email, password: formData.password }
       );
 
-      const { token, ...teacher } = response.data;
+      const { token, teacher, message } = response.data;
 
-      if (token) {
+      if (token && teacher) {
         localStorage.setItem('teacherToken', token);
         localStorage.setItem('teacherData', JSON.stringify(teacher));
         setSuccess(true);
-        setMessage('Login successful!');
-        navigate('/teacher-dashboard'); // ✅ change to your actual dashboard route
+        setMessage(message || 'Login successful');
+        navigate('/teacher-dashboard');
       } else {
         setMessage('Login failed');
         setSuccess(false);
