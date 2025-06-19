@@ -25,12 +25,20 @@ export const loginUser = (fields, role) => async (dispatch) => {
         headers: { 'Content-Type': 'application/json' },
       }
     );
-    if (result.data.role) {
+
+    const { token, teacher, student, admin, message } = result.data;
+    const user = teacher || student || admin;
+
+    if (result.data.role && user && token) {
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('role', role);
       dispatch(authSuccess(result.data));
     } else {
-      dispatch(authFailed(result.data.message));
+      dispatch(authFailed(message || 'Invalid login response'));
     }
   } catch (error) {
+    console.error('Login Error:', error);
     dispatch(authError(error));
   }
 };
