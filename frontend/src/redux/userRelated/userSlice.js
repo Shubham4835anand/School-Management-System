@@ -6,7 +6,7 @@ const initialState = {
   tempDetails: [],
   loading: false,
   currentUser: JSON.parse(localStorage.getItem('user')) || null,
-  currentRole: localStorage.getItem('role') || null,
+  currentRole: (JSON.parse(localStorage.getItem('user')) || {}).role || null,
 
   error: null,
   response: null,

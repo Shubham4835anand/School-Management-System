@@ -59,7 +59,7 @@ const LoginPage = ({ role }) => {
         if (!password) setPasswordError(true);
         return;
       }
-      const fields = { rollNum, studentName, password };
+      const fields = { rollNum, name: studentName, password };
       setLoader(true);
       dispatch(loginUser(fields, role));
     } else {
