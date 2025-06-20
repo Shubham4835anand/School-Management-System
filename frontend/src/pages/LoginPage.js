@@ -30,7 +30,7 @@ const LoginPage = ({ role }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { status, currentUser, response, error, currentRole } = useSelector(
+  const { status, response, error, currentRole } = useSelector(
     (state) => state.user
   );
 
@@ -109,7 +109,7 @@ const LoginPage = ({ role }) => {
   };
 
   useEffect(() => {
-    if (status === 'success' || currentUser !== null) {
+    if (status === 'success') {
       if (currentRole === 'Admin') {
         navigate('/Admin/dashboard');
       } else if (currentRole === 'Student') {
@@ -118,16 +118,17 @@ const LoginPage = ({ role }) => {
         navigate('/Teacher/dashboard');
       }
     } else if (status === 'failed') {
-      setMessage(response);
+      setMessage(response || 'Login failed');
       setShowPopup(true);
       setLoader(false);
+      setGuestLoader(false);
     } else if (status === 'error') {
       setMessage('Network Error');
       setShowPopup(true);
       setLoader(false);
       setGuestLoader(false);
     }
-  }, [status, currentRole, navigate, error, response, currentUser]);
+  }, [status, currentRole, navigate, response]);
 
   return (
     <ThemeProvider theme={defaultTheme}>
