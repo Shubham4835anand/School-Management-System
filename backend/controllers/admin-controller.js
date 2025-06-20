@@ -8,6 +8,8 @@ const Notice = require('../models/noticeSchema.js');
 const Complain = require('../models/complainSchema.js');
 const jwt = require('jsonwebtoken');
 
+require('dotenv').config();
+
 // const adminRegister = async (req, res) => {
 //     try {
 //         const salt = await bcrypt.genSalt(10);
@@ -84,42 +86,29 @@ const adminRegister = async (req, res) => {
 const adminLogIn = async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    if (!email || !password) {
+    if (!email || !password)
       return res
         .status(400)
-        .json({ message: 'Email and password are required' });
-    }
+        .send({ message: 'Email and password are required' });
 
     const admin = await Admin.findOne({ email });
+    if (!admin) return res.status(404).send({ message: 'User not found' });
 
-    if (!admin) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    if (admin.password !== password)
+      return res.status(401).send({ message: 'Invalid password' });
 
-    if (password !== admin.password) {
-      return res.status(401).json({ message: 'Invalid password' });
-    }
-
-    // Create token
+    // ✅ Generate JWT
     const token = jwt.sign(
       { id: admin._id, role: 'Admin' },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      process.env.JWT_SECRET, // <-- ✅ Secret must be defined
+      { expiresIn: '1d' }
     );
 
-    // Do not send the password back
-    const { password: _, ...adminData } = admin._doc;
-
-    // Send expected response
-    res.status(200).json({
-      token,
-      admin: adminData,
-      role: 'Admin',
-    });
+    const { password: _, ...adminData } = admin.toObject();
+    res.status(200).send({ admin: adminData, role: 'Admin', token });
   } catch (err) {
     console.error('Admin login error:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).send({ message: 'Internal server error' });
   }
 };
 

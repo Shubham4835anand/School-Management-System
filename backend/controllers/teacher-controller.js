@@ -6,6 +6,7 @@ const Teacher = require('../models/teacherSchema.js');
 const Subject = require('../models/subjectSchema.js');
 const School = require('../models/adminSchema.js');
 
+require('dotenv').config();
 const teacherRegister = async (req, res) => {
   try {
     const { name, email, password, school, teachSclass } = req.body;

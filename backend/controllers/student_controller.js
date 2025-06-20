@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const Student = require('../models/studentSchema.js');
 const Subject = require('../models/subjectSchema.js');
 
+require('dotenv').config();
+
 const studentRegister = async (req, res) => {
   try {
     const { name, rollNum, password, sclassName, school } = req.body;
