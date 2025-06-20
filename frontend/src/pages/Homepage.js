@@ -50,17 +50,17 @@ const Homepage = () => {
               </StyledLink>
 
               <StyledText>Don't have an account?</StyledText>
-              <StyledLink to='/Adminregister'>
+              <StyledLink to='/AdminReg'>
                 <Button variant='text' fullWidth sx={{ color: '#550080' }}>
                   Sign up as Admin
                 </Button>
               </StyledLink>
-              <StyledLink to='/Teacherregister'>
+              <StyledLink to='/TeacherReg'>
                 <Button variant='text' fullWidth sx={{ color: '#550080' }}>
                   Sign up as Teacher
                 </Button>
               </StyledLink>
-              <StyledLink to='/Studentregister'>
+              <StyledLink to='/StudentReg'>
                 <Button variant='text' fullWidth sx={{ color: '#550080' }}>
                   Sign up as Student
                 </Button>

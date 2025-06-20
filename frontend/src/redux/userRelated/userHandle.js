@@ -14,6 +14,7 @@ import {
 } from './userSlice';
 
 const REACT_APP_BASE_URL = process.env.REACT_APP_BASE_URL;
+
 export const loginUser = (fields, role) => async (dispatch) => {
   dispatch(authRequest());
 
@@ -26,17 +27,24 @@ export const loginUser = (fields, role) => async (dispatch) => {
       }
     );
 
-    const { token, teacher, student, admin, message } = result.data;
+    const {
+      token,
+      teacher,
+      student,
+      admin,
+      message,
+      role: responseRole,
+    } = result.data;
     const user = teacher || student || admin;
 
-    if (user && token) {
-      const userWithRole = { ...user, role }; // Attach role here
-
+    if (responseRole && user && token) {
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(userWithRole));
-      localStorage.setItem('role', role);
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('role', responseRole);
 
-      dispatch(authSuccess(userWithRole)); // Send user + role
+      dispatch(
+        authSuccess({ teacher, student, admin, role: responseRole, token })
+      );
     } else {
       dispatch(authFailed(message || 'Invalid login response'));
     }
@@ -60,7 +68,7 @@ export const registerUser = (fields, role) => async (dispatch) => {
     if (result.data.schoolName) {
       dispatch(authSuccess(result.data));
     } else if (result.data.school) {
-      dispatch(stuffAdded());
+      dispatch(stuffAdded(result.data));
     } else {
       dispatch(authFailed(result.data.message));
     }
@@ -70,6 +78,9 @@ export const registerUser = (fields, role) => async (dispatch) => {
 };
 
 export const logoutUser = () => (dispatch) => {
+  localStorage.removeItem('user');
+  localStorage.removeItem('token');
+  localStorage.removeItem('role');
   dispatch(authLogout());
 };
 
@@ -100,11 +111,6 @@ export const deleteUser = (id, address) => async (dispatch) => {
     dispatch(getError(error));
   }
 };
-
-// export const deleteUser = (id, address) => async (dispatch) => {
-//    dispatch(getRequest());
-//    dispatch(getFailed("Sorry the delete function has been disabled for now."));
-//}
 
 export const updateUser = (fields, id, address) => async (dispatch) => {
   dispatch(getRequest());

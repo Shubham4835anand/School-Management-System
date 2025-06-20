@@ -241,7 +241,7 @@ const TeacherRegisterPage = () => {
               <Grid container justifyContent='flex-end'>
                 <Grid item>
                   Already have an account?
-                  <StyledLink to='/Teacherlogin'> Log in</StyledLink>
+                  <StyledLink to='/TeacherLogin'> Log in</StyledLink>
                 </Grid>
               </Grid>
             </Box>

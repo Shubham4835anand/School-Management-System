@@ -35,8 +35,8 @@ const userSlice = createSlice({
       const user = teacher || student || admin;
 
       state.status = 'success';
-      state.currentUser = action.payload;
-      state.currentRole = action.payload.role;
+      state.currentUser = user;
+      state.currentRole = role;
 
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('token', token);
