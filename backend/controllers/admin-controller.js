@@ -6,6 +6,7 @@ const Teacher = require('../models/teacherSchema.js');
 const Subject = require('../models/subjectSchema.js');
 const Notice = require('../models/noticeSchema.js');
 const Complain = require('../models/complainSchema.js');
+const jwt = require('jsonwebtoken');
 
 // const adminRegister = async (req, res) => {
 //     try {
