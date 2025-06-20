@@ -17,7 +17,12 @@ import TeacherRegisterPage from './pages/teacher/TeacherRegisterPage';
 import StudentRegisterPage from './pages/student/StudentRegisterPage';
 
 const App = () => {
-  const { currentRole } = useSelector((state) => state.user);
+  const { teacher, student, admin } = useSelector((state) => state.user);
+
+  let currentRole = null;
+  if (teacher) currentRole = 'Teacher';
+  else if (student) currentRole = 'Student';
+  else if (admin) currentRole = 'Admin';
 
   return (
     <Router>

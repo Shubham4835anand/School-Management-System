@@ -32,27 +32,25 @@ const userSlice = createSlice({
     },
     authSuccess: (state, action) => {
       const { teacher, student, admin, role, token } = action.payload;
-      const user = teacher || student || admin;
-
-      state.status = 'success';
-      state.currentUser = user;
-      state.currentRole = role;
-
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('token', token);
-      localStorage.setItem('role', role);
-
-      state.response = null;
-      state.error = null;
+      state.teacher = teacher || null;
+      state.student = student || null;
+      state.admin = admin || null;
+      state.token = token;
+      state.isAuthenticated = true;
+      state.currentRole = role; // ✅ This is missing in your current setup
+      state.user = teacher || student || admin || null;
+      state.loading = false;
     },
 
     authFailed: (state, action) => {
       state.status = 'failed';
       state.response = action.payload;
+      state.loading = false;
     },
     authError: (state, action) => {
       state.status = 'error';
       state.error = action.payload;
+      state.loading = false;
     },
     authLogout: (state) => {
       localStorage.removeItem('user');
@@ -60,6 +58,7 @@ const userSlice = createSlice({
       state.status = 'idle';
       state.error = null;
       state.currentRole = null;
+      state.loading = false;
     },
 
     doneSuccess: (state, action) => {
