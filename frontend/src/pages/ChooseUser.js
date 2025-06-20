@@ -35,7 +35,7 @@ const ChooseUser = ({ visitor }) => {
         setLoader(true);
         dispatch(loginUser(fields, user));
       } else {
-        navigate('/Adminlogin');
+        navigate('/AdminLogin');
       }
     } else if (user === 'Student') {
       if (visitor === 'guest') {
@@ -45,7 +45,7 @@ const ChooseUser = ({ visitor }) => {
         setLoader(true);
         dispatch(loginUser(fields, user));
       } else {
-        navigate('/Studentlogin');
+        navigate('/StudentLogin');
       }
     } else if (user === 'Teacher') {
       if (visitor === 'guest') {
@@ -54,7 +54,7 @@ const ChooseUser = ({ visitor }) => {
         setLoader(true);
         dispatch(loginUser(fields, user));
       } else {
-        navigate('/Teacherlogin');
+        navigate('/TeacherLogin');
       }
     }
   };

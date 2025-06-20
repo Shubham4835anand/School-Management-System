@@ -30,13 +30,13 @@ const App = () => {
             element={<ChooseUser visitor='guest' />}
           />
 
-          <Route path='/AdminLogin' element={<LoginPage role='Admin' />} />
-          <Route path='/StudentLogin' element={<LoginPage role='Student' />} />
-          <Route path='/TeacherLogin' element={<LoginPage role='Teacher' />} />
+          <Route path='/Adminlogin' element={<LoginPage role='Admin' />} />
+          <Route path='/Studentlogin' element={<LoginPage role='Student' />} />
+          <Route path='/Teacherlogin' element={<LoginPage role='Teacher' />} />
 
-          <Route path='/AdminReg' element={<AdminRegisterPage />} />
-          <Route path='/TeacherReg' element={<TeacherRegisterPage />} />
-          <Route path='/StudentReg' element={<StudentRegisterPage />} />
+          <Route path='/Adminregister' element={<AdminRegisterPage />} />
+          <Route path='/Teacherregister' element={<TeacherRegisterPage />} />
+          <Route path='/Studentregister' element={<StudentRegisterPage />} />
 
           <Route path='*' element={<Navigate to='/' />} />
         </Routes>
