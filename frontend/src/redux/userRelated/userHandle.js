@@ -35,22 +35,31 @@ export const loginUser = (fields, role) => async (dispatch) => {
       message,
       role: responseRole,
     } = result.data;
-    const user = teacher || student || admin;
 
-    if (responseRole && user && token) {
+    const user = teacher || student || admin;
+    const finalRole = responseRole || role;
+    // Ensure all values are present
+    if (user && token && (responseRole || role)) {
+      // Store in localStorage
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('role', responseRole);
+      localStorage.setItem('role', finalRole);
 
       dispatch(
-        authSuccess({ teacher, student, admin, role: responseRole, token })
+        authSuccess({
+          teacher,
+          student,
+          admin,
+          role: finalRole,
+          token,
+        })
       );
     } else {
       dispatch(authFailed(message || 'Invalid login response'));
     }
   } catch (error) {
     console.error('Login Error:', error);
-    dispatch(authError(error));
+    dispatch(authError(error.message || 'Login request failed'));
   }
 };
 

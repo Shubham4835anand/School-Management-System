@@ -58,25 +58,27 @@ const userSlice = createSlice({
 
       state.token = token || null;
       state.user = user;
-      state.currentUser = user; // ✅ sync if needed
+      state.currentUser = user;
       state.currentRole = role || null;
       state.isAuthenticated = true;
       state.status = 'success';
-      state.loading = false;
       state.error = null;
+
+      // ✅ persist to localStorage here
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', role);
     },
 
     authFailed: (state, action) => {
       state.status = 'failed';
       state.response = action.payload;
-      state.loading = false;
       state.isAuthenticated = false;
     },
 
     authError: (state, action) => {
       state.status = 'error';
       state.error = action.payload;
-      state.loading = false;
     },
 
     authLogout: (state) => {
@@ -95,7 +97,6 @@ const userSlice = createSlice({
 
       state.status = 'idle';
       state.error = null;
-      state.loading = false;
       state.isAuthenticated = false;
     },
 
