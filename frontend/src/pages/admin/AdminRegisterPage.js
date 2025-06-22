@@ -42,6 +42,9 @@ const AdminRegisterPage = () => {
   const [passwordError, setPasswordError] = useState(false);
   const [adminNameError, setAdminNameError] = useState(false);
   const [schoolNameError, setSchoolNameError] = useState(false);
+  const [adminSecret, setAdminSecret] = useState('');
+  const [adminSecretError, setAdminSecretError] = useState(false);
+
   const role = 'Admin';
 
   const handleSubmit = (event) => {
@@ -52,15 +55,33 @@ const AdminRegisterPage = () => {
     const email = event.target.email.value;
     const password = event.target.password.value;
 
-    if (!name || !schoolName || !email || !password) {
+    const SECRET_CODE = process.env.REACT_APP_SECRET_CODE; // Only you should know this
+
+    if (!name || !schoolName || !email || !password || !adminSecret) {
       if (!name) setAdminNameError(true);
       if (!schoolName) setSchoolNameError(true);
       if (!email) setEmailError(true);
       if (!password) setPasswordError(true);
+      if (!adminSecret) setAdminSecretError(true);
       return;
     }
 
-    const fields = { name, email, password, role, schoolName };
+    if (adminSecret !== process.env.REACT_APP_SECRET_CODE) {
+      setAdminSecretError(true);
+      setMessage('Incorrect Admin Secret Code');
+      setShowPopup(true);
+      return;
+    }
+
+    const fields = {
+      name,
+      email,
+      password,
+      role,
+      schoolName,
+      secret: adminSecret,
+    };
+
     setLoader(true);
     dispatch(registerUser(fields, role));
   };
@@ -71,6 +92,7 @@ const AdminRegisterPage = () => {
     if (name === 'password') setPasswordError(false);
     if (name === 'adminName') setAdminNameError(false);
     if (name === 'schoolName') setSchoolNameError(false);
+    if (name === 'adminSecret') setAdminSecretError(false);
   };
 
   useEffect(() => {
@@ -176,6 +198,20 @@ const AdminRegisterPage = () => {
                   ),
                 }}
               />
+              <TextField
+                margin='normal'
+                required
+                fullWidth
+                name='adminSecret'
+                label='Admin Secret Code'
+                type='password'
+                id='adminSecret'
+                autoComplete='off'
+                error={adminSecretError}
+                helperText={adminSecretError && 'Secret code is incorrect'}
+                onChange={handleInputChange}
+              />
+
               <Grid
                 container
                 sx={{ display: 'flex', justifyContent: 'space-between' }}

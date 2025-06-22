@@ -69,6 +69,10 @@ const adminRegister = async (req, res) => {
       schoolName: req.body.schoolName,
     });
 
+    if (req.body.secret !== process.env.SECRET_CODE) {
+      return res.status(401).json({ error: 'Unauthorized admin registration' });
+    }
+
     if (existingAdminByEmail) {
       res.send({ message: 'Email already exists' });
     } else if (existingSchool) {
