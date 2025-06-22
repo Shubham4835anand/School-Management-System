@@ -55,8 +55,6 @@ const AdminRegisterPage = () => {
     const email = event.target.email.value;
     const password = event.target.password.value;
 
-    const SECRET_CODE = process.env.REACT_APP_SECRET_CODE; // Only you should know this
-
     if (!name || !schoolName || !email || !password || !adminSecret) {
       if (!name) setAdminNameError(true);
       if (!schoolName) setSchoolNameError(true);
@@ -66,20 +64,13 @@ const AdminRegisterPage = () => {
       return;
     }
 
-    if (adminSecret !== process.env.REACT_APP_SECRET_CODE) {
-      setAdminSecretError(true);
-      setMessage('Incorrect Admin Secret Code');
-      setShowPopup(true);
-      return;
-    }
-
     const fields = {
       name,
       email,
       password,
       role,
       schoolName,
-      secret: adminSecret,
+      secret: adminSecret, // ✅ This will be verified by backend
     };
 
     setLoader(true);

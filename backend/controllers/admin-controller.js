@@ -70,7 +70,9 @@ const adminRegister = async (req, res) => {
     });
 
     if (req.body.secret !== process.env.SECRET_CODE) {
-      return res.status(401).json({ error: 'Unauthorized admin registration' });
+      return res
+        .status(401)
+        .json({ message: 'Unauthorized admin registration' });
     }
 
     if (existingAdminByEmail) {
