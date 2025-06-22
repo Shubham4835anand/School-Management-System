@@ -198,8 +198,17 @@ const AdminRegisterPage = () => {
                 type='password'
                 id='adminSecret'
                 autoComplete='off'
-                error={adminSecretError}
-                helperText={adminSecretError && 'Secret code is incorrect'}
+                error={
+                  adminSecretError ||
+                  (status === 'failed' && response?.includes('Unauthorized'))
+                }
+                helperText={
+                  adminSecretError
+                    ? 'Secret code is required'
+                    : status === 'failed' && response?.includes('Unauthorized')
+                    ? 'Secret code is incorrect'
+                    : ''
+                }
                 onChange={handleInputChange}
               />
 
