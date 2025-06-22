@@ -61,7 +61,7 @@ const TeacherRegisterPage = () => {
     try {
       setLoader(true);
       const response = await axios.post(
-        'https://school-management-system-8atr.onrender.com/TeacherReg',
+        'https://school-management-system-8atr.onrender.com/Teacherregister',
         data,
         {
           headers: {

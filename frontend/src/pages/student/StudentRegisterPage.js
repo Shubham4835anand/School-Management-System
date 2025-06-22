@@ -49,7 +49,7 @@ const StudentSignup = () => {
       };
 
       const res = await axios.post(
-        'https://school-management-system-8atr.onrender.com/StudentReg',
+        'https://school-management-system-8atr.onrender.com/Studentregister',
         payload
       );
 

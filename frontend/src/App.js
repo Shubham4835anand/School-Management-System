@@ -34,6 +34,10 @@ const App = () => {
             path='/chooseasguest'
             element={<ChooseUser visitor='guest' />}
           />
+          <Route
+            path='/choose-register'
+            element={<ChooseUser visitor='register' />}
+          />
 
           <Route path='/Adminlogin' element={<LoginPage role='Admin' />} />
           <Route path='/Studentlogin' element={<LoginPage role='Student' />} />
