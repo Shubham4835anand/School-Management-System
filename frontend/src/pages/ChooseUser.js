@@ -28,34 +28,36 @@ const ChooseUser = ({ visitor }) => {
   const [message, setMessage] = useState('');
 
   const navigateHandler = (user) => {
-    if (user === 'Admin') {
-      if (visitor === 'guest') {
+    if (visitor === 'guest') {
+      // Guest login flow
+      const password = 'zxc';
+      if (user === 'Admin') {
         const email = 'guest.admin@example.com';
         const fields = { email, password };
         setLoader(true);
         dispatch(loginUser(fields, user));
-      } else {
-        navigate('/AdminLogin');
-      }
-    } else if (user === 'Student') {
-      if (visitor === 'guest') {
+      } else if (user === 'Student') {
         const rollNum = 'GUEST001';
         const studentName = 'Guest Student';
         const fields = { rollNum, studentName, password };
         setLoader(true);
         dispatch(loginUser(fields, user));
-      } else {
-        navigate('/StudentLogin');
-      }
-    } else if (user === 'Teacher') {
-      if (visitor === 'guest') {
+      } else if (user === 'Teacher') {
         const email = 'guest.teacher@example.com';
         const fields = { email, password };
         setLoader(true);
         dispatch(loginUser(fields, user));
-      } else {
-        navigate('/TeacherLogin');
       }
+    } else if (visitor === 'register') {
+      // ✅ NEW: registration flow
+      if (user === 'Admin') navigate('/Adminregister');
+      else if (user === 'Student') navigate('/Studentregister');
+      else if (user === 'Teacher') navigate('/Teacherregister');
+    } else {
+      // Regular login flow
+      if (user === 'Admin') navigate('/Adminlogin');
+      else if (user === 'Student') navigate('/Studentlogin');
+      else if (user === 'Teacher') navigate('/Teacherlogin');
     }
   };
 
