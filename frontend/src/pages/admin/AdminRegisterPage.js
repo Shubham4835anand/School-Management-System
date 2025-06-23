@@ -209,7 +209,10 @@ const AdminRegisterPage = () => {
                     ? 'Secret code is incorrect'
                     : ''
                 }
-                onChange={handleInputChange}
+                onChange={(e) => {
+                  setAdminSecret(e.target.value); // ✅ update state
+                  setAdminSecretError(false); // ✅ clear error on typing
+                }}
               />
 
               <Grid
