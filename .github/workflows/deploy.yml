@@ -1,0 +1,47 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm install
+      - run: npm test
+      # Save build for deployment
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-output
+          path: ./
+
+  deploy:
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - name: Download build
+        uses: actions/download-artifact@v3
+        with:
+          name: build-output
+      - name: Authenticate Git (HTTPS)
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "action@github.com"
+          git remote set-url origin https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+      - name: Clone or Pull Latest Code
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
+      - name: Deploy to Windows Server via HTTPS (e.g. PowerShell)
+        run: |
+          # Example using PowerShell script call via HTTPS or other means
+          Invoke-WebRequest -Uri "https://school-management-system-1-apue.onrender.com/deploy.ps1" -OutFile deploy.ps1
+          powershell.exe -ExecutionPolicy Bypass -File deploy.ps1
