@@ -1,5 +1,0 @@
-- name: Authenticate Git (HTTPS)
-  run: |
-    git config --global user.name "github-actions[bot]"
-    git config --global user.email "action@github.com"
-    git remote set-url origin https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
